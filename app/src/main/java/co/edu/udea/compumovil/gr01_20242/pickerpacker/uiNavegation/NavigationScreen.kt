@@ -42,8 +42,8 @@ import co.edu.udea.compumovil.gr01_20242.pickerpacker.R
 import co.edu.udea.compumovil.gr01_20242.pickerpacker.viewMenu.Camara
 import co.edu.udea.compumovil.gr01_20242.pickerpacker.viewMenu.DatosUsuario
 import co.edu.udea.compumovil.gr01_20242.pickerpacker.viewMenu.Galeria
-import co.edu.udea.compumovil.gr01_20242.pickerpacker.viewMenu.Herramientas
 import co.edu.udea.compumovil.gr01_20242.pickerpacker.viewMenu.Salir
+import co.edu.udea.compumovil.gr01_20242.pickerpacker.viewMenuimport.Herramientas
 
 
 @OptIn(ExperimentalMaterial3Api::class)
