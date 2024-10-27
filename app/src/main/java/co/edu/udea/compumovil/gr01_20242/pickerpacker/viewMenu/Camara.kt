@@ -2,10 +2,11 @@ package co.edu.udea.compumovil.gr01_20242.pickerpacker.viewMenu
 
 
 import android.Manifest
-import android.app.AlertDialog
 import android.content.Context
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Environment
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
@@ -32,16 +33,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
+import co.edu.udea.compumovil.gr01_20242.pickerpacker.uiNavegation.NavigationViewModel
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 @Composable
-fun Camara() {
+fun Camara(navigationViewModel: NavigationViewModel = viewModel()) {
     val context = LocalContext.current
     var hasCameraPermission by remember { mutableStateOf(false) }
     var isCameraInitialized by remember { mutableStateOf(false) }
+    var isCameraVisible by remember { mutableStateOf(true )} // Estado para manejar la visibilidad de la cámara
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -57,12 +61,18 @@ fun Camara() {
     }
 
     if (hasCameraPermission) {
-        if (isCameraInitialized) {
+        if (isCameraInitialized && isCameraVisible) {
             Box(modifier = Modifier.fillMaxSize()) {
                 CameraPreview()
 
                 Button(
-                    onClick = { takePicture(context) },
+                    onClick = {
+                        takePicture(context) { imageUri ->
+                            navigationViewModel.capturedImageUri.value = imageUri // Almacena la URI en el ViewModel
+                            Log.d("PhotoPicker", "Selected URI: $imageUri")
+                            isCameraVisible = false // Cerrar la cámara después de tomar la foto
+                        }
+                    },
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .padding(110.dp)
@@ -70,6 +80,8 @@ fun Camara() {
                     Text("Tomar Foto")
                 }
             }
+        } else if (!isCameraVisible) {
+            Text("Foto tomada, cámara cerrada.")
         }
     } else {
         Text("Esperando permiso de cámara...")
@@ -96,21 +108,7 @@ fun CameraPreview() {
     )
 }
 
-private fun showSaveDialog(context: Context) {
-    val builder = AlertDialog.Builder(context)
-    builder.setTitle("Guardar foto")
-    builder.setMessage("¿Quieres guardar la foto?")
-    builder.setPositiveButton("Sí") { _, _ ->
-        takePicture(context)  // Llama a la función que toma la foto
-    }
-    builder.setNegativeButton("No") { dialog, _ ->
-        dialog.dismiss()  // Cierra el diálogo sin hacer nada
-    }
-    val dialog = builder.create()
-    dialog.show()
-}
-
-private fun takePicture(context: Context) {
+private fun takePicture(context: Context, onPictureTaken: (Uri) -> Unit) {
     val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
 
     cameraProviderFuture.addListener(Runnable {
@@ -128,8 +126,10 @@ private fun takePicture(context: Context) {
             imageCapture.takePicture(outputOptions, ContextCompat.getMainExecutor(context),
                 object : ImageCapture.OnImageSavedCallback {
                     override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                        // Notificar al usuario o actualizar la UI
+                        val imageUri = Uri.fromFile(photoFile) // Obtener la URI de la imagen capturada
+                        onPictureTaken(imageUri) // Llamar al callback con la URI
                     }
+
                     override fun onError(exception: ImageCaptureException) {
                         // Manejo de errores
                     }

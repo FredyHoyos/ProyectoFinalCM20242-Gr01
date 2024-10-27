@@ -18,19 +18,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
+import co.edu.udea.compumovil.gr01_20242.pickerpacker.uiNavegation.NavigationViewModel
 import coil.compose.rememberAsyncImagePainter
 
 @Composable
-fun Galeria() {
+fun Galeria(navigationViewModel: NavigationViewModel = viewModel()) {
     val context = LocalContext.current
-    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+    val selectedImageUri = navigationViewModel.selectedImageUri.value
 
     // Crea el launcher para seleccionar una imagen
     val pickMedia = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = { uri ->
             if (uri != null) {
-                selectedImageUri = uri // Almacena la URI de la imagen seleccionada
+                navigationViewModel.selectedImageUri.value = uri // Almacena la URI en el ViewModel
                 Log.d("PhotoPicker", "Selected URI: $uri")
             } else {
                 Log.d("PhotoPicker", "No media selected")
