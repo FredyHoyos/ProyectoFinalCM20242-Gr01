@@ -38,6 +38,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import co.edu.udea.compumovil.gr01_20242.pickerpacker.R
 import co.edu.udea.compumovil.gr01_20242.pickerpacker.viewMenu.Camara
 import co.edu.udea.compumovil.gr01_20242.pickerpacker.viewMenu.DatosUsuario
@@ -48,7 +49,7 @@ import co.edu.udea.compumovil.gr01_20242.pickerpacker.viewMenu.Salir
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NavigationScreen() {
+fun NavigationScreen(navController: NavController) {
     val navigationViewModel: NavigationViewModel = viewModel()
     val currentScreen = navigationViewModel.currentScreen.value
 
@@ -211,3 +212,4 @@ fun DropDownMenu1() {
         }
     }
 }
+

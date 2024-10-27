@@ -1,16 +1,18 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("com.google.gms.google-services")
+
 }
 
 android {
     namespace = "co.edu.udea.compumovil.gr01_20242.pickerpacker"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "co.edu.udea.compumovil.gr01_20242.pickerpacker"
         minSdk = 25
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -40,7 +42,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.10"
     }
     packaging {
         resources {
@@ -51,6 +53,8 @@ android {
 
 dependencies {
 
+    implementation(libs.material3)
+
     // CameraX
     implementation (libs.androidx.camera.core)
     implementation (libs.androidx.camera.camera2)
@@ -58,6 +62,15 @@ dependencies {
     implementation (libs.androidx.camera.view.v100)
 
     implementation (libs.coil.compose)
+
+    // viewmodel y livedata
+    implementation (libs.androidx.lifecycle.runtime.ktx.v251)
+    implementation (libs.androidx.runtime.livedata)
+
+    // Import the Firebase BoM , analitics y auht
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.auth.ktx)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -77,4 +90,5 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
 }
