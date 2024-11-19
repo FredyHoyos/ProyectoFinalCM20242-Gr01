@@ -23,7 +23,6 @@ import co.edu.udea.compumovil.gr01_20242.pickerpacker.viewMenu.Informacion
 import co.edu.udea.compumovil.gr01_20242.pickerpacker.viewMenu.Salir
 import co.edu.udea.compumovil.gr01_20242.pickerpacker.viewMenuimport.Herramientas
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavigationScreen(navController: NavController) {
@@ -41,30 +40,60 @@ fun NavigationScreen(navController: NavController) {
                         .weight(1f), // Para ocupar todo el espacio disponible
                     horizontalArrangement = Arrangement.SpaceAround // Espacio entre los íconos
                 ) {
-                    IconButton(onClick = { navigationViewModel.navigateTo(NavigationUiState.Informacion) }) {
+                    // Botón para la pantalla de Información
+                    IconButton(
+                        onClick = { navigationViewModel.navigateTo(NavigationUiState.Informacion) },
+                        modifier = Modifier
+                            .background(if (currentScreen is NavigationUiState.Informacion) Color.Gray else Color.Transparent)
+                    ) {
                         Image(
-                            painter = painterResource(id = R.drawable.ico_informacion), contentDescription ="Informacion",
-                            modifier = Modifier.size(30.dp))
+                            painter = painterResource(id = R.drawable.ico_informacion),
+                            contentDescription = "Informacion",
+                            modifier = Modifier.size(30.dp),
+                        )
                     }
-                    IconButton(onClick = { navigationViewModel.navigateTo(NavigationUiState.Herramientas) }) {
+
+                    // Botón para la pantalla de Herramientas
+                    IconButton(
+                        onClick = { navigationViewModel.navigateTo(NavigationUiState.Herramientas) },
+                        modifier = Modifier
+                            .background(if (currentScreen is NavigationUiState.Herramientas) Color.Gray else Color.Transparent)
+                    ) {
                         Image(
-                            painter = painterResource(id = R.drawable.ico_camara), contentDescription ="Informacion",
-                            modifier = Modifier.size(30.dp))
+                            painter = painterResource(id = R.drawable.ico_camara),
+                            contentDescription = "Herramientas",
+                            modifier = Modifier.size(30.dp),
+                        )
                     }
-                    IconButton(onClick = { navigationViewModel.navigateTo(NavigationUiState.Galeria) }) {
+
+                    // Botón para la pantalla de Galería
+                    IconButton(
+                        onClick = { navigationViewModel.navigateTo(NavigationUiState.Galeria) },
+                        modifier = Modifier
+                            .background(if (currentScreen is NavigationUiState.Galeria) Color.Gray else Color.Transparent)
+                    ) {
                         Image(
-                            painter = painterResource(id = R.drawable.ico_galeria), contentDescription = "Galería",
-                            modifier = Modifier.size(30.dp))
+                            painter = painterResource(id = R.drawable.ico_galeria),
+                            contentDescription = "Galería",
+                            modifier = Modifier.size(30.dp),
+                        )
                     }
-                    IconButton(onClick = { navigationViewModel.navigateTo(NavigationUiState.Salir) }) {
+
+                    // Botón para la pantalla de Salir
+                    IconButton(
+                        onClick = { navigationViewModel.navigateTo(NavigationUiState.Salir) },
+                        modifier = Modifier
+                            .background(if (currentScreen is NavigationUiState.Salir) Color.Gray else Color.Transparent)
+                    ) {
                         Image(
-                            painter = painterResource(id = R.drawable.ico_salir), contentDescription = "Salir",
-                            modifier = Modifier.size(30.dp))
+                            painter = painterResource(id = R.drawable.ico_salir),
+                            contentDescription = "Salir",
+                            modifier = Modifier.size(30.dp),
+                        )
                     }
                 }
             }
         )
-
 
         // Contenido según la pantalla actual
         when (currentScreen) {
