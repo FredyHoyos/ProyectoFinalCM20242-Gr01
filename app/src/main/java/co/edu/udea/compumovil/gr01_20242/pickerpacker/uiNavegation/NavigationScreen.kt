@@ -18,9 +18,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import co.edu.udea.compumovil.gr01_20242.pickerpacker.R
+import co.edu.udea.compumovil.gr01_20242.pickerpacker.ui.login.navigation.AppScreens
 import co.edu.udea.compumovil.gr01_20242.pickerpacker.viewMenu.Galeria
 import co.edu.udea.compumovil.gr01_20242.pickerpacker.viewMenu.Informacion
-import co.edu.udea.compumovil.gr01_20242.pickerpacker.viewMenu.Salir
 import co.edu.udea.compumovil.gr01_20242.pickerpacker.viewMenuimport.Herramientas
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -81,7 +81,12 @@ fun NavigationScreen(navController: NavController) {
 
                     // Botón para la pantalla de Salir
                     IconButton(
-                        onClick = { navigationViewModel.navigateTo(NavigationUiState.Salir) },
+                        onClick = {
+                            navController.navigate(AppScreens.LoginScreen.route) {
+                                // Limpiar el stack de navegación para que no se pueda volver atrás al menú
+                                popUpTo(AppScreens.MenuScreen.route) { inclusive = true }
+                            }
+                        },
                         modifier = Modifier
                             .background(if (currentScreen is NavigationUiState.Salir) Color.Gray else Color.Transparent)
                     ) {
@@ -106,9 +111,7 @@ fun NavigationScreen(navController: NavController) {
             is NavigationUiState.Galeria -> {
                 Galeria()
             }
-            is NavigationUiState.Salir -> {
-                Salir()
-            }
+            NavigationUiState.Salir -> TODO()
         }
     }
 }
