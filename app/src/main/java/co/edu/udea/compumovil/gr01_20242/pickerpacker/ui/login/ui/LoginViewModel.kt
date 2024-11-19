@@ -32,6 +32,10 @@ class LoginViewModel : ViewModel() {
 
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
+    init {
+        _loginEnable.value = false  // Inicializar el estado del botón como deshabilitado
+    }
+
     fun onLoginChanged(email: String, password: String) {
         _email.value = email
         _password.value = password
