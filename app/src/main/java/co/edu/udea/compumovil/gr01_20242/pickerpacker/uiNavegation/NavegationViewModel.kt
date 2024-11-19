@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 
 class NavigationViewModel : ViewModel() {
-    var currentScreen = mutableStateOf<NavigationUiState>(NavigationUiState.ShowUserData)
+    var currentScreen = mutableStateOf<NavigationUiState>(NavigationUiState.Herramientas)
     var selectedImageUri = mutableStateOf<Uri?>(null)
     var capturedImageUri = mutableStateOf<Uri?>(null)
 
