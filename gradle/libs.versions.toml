@@ -19,6 +19,7 @@ navigationCompose = "2.8.3"
 cameraLifecycle = "1.3.4"
 cameraView = "1.3.4"
 runtimeLivedata = "1.7.4"
+storage = "1.5.0"
 
 [libraries]
 androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cameraCore" }
@@ -49,6 +50,7 @@ androidx-navigation-compose = { group = "androidx.navigation", name = "navigatio
 androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "cameraLifecycle" }
 androidx-camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "cameraView" }
 material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
+androidx-storage = { group = "androidx.test.services", name = "storage", version.ref = "storage" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
