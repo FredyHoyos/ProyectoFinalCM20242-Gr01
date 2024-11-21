@@ -61,7 +61,7 @@ fun Informacion() {
         )
 
         Text(
-            text = "2. **Herramientas**: En esta sección podrás subir imágenes desde la galería o tomar fotos con la cámara. Después de tomar la foto, podrás elegir el nivel de compresión utilizando el algoritmo de árboles cuartiles. El nivel 1 representa la imagen más comprimida, y puedes aumentar el nivel según tus necesidades.",
+            text = "2. **Herramientas**: En esta sección pordras tomar una foto usando la cámara, subir una imagen desde la galería, o restablecer la imagen a un valor predeterminado. Además, ofrece una funcionalidad para procesar la imagen cargada mediante un algoritmo de compresión basado en QuadTree, lo que reduce su tamaño manteniendo los detalles más importantes. El usuario también puede ver el tamaño de la imagen original y procesada, y tiene la opción de guardar la imagen comprimida.",
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.padding(bottom = 8.dp)
         )
