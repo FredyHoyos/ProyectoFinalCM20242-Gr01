@@ -61,7 +61,7 @@ fun Informacion() {
         )
 
         Text(
-            text = "2. **Herramientas**: En esta sección pordras tomar una foto usando la cámara, subir una imagen desde la galería, o restablecer la imagen a un valor predeterminado. Además, ofrece una funcionalidad para procesar la imagen cargada mediante un algoritmo de compresión basado en QuadTree, lo que reduce su tamaño manteniendo los detalles más importantes. El usuario también puede ver el tamaño de la imagen original y procesada, y tiene la opción de guardar la imagen comprimida.",
+            text = "2. **Herramientas**: En esta sección podrás tomar una foto usando la cámara, subir una imagen desde la galería, o restablecer la imagen a un valor predeterminado. Además, ofrece una funcionalidad para procesar la imagen cargada mediante un algoritmo de compresión basado en QuadTree, lo que reduce su tamaño manteniendo los detalles más importantes. El usuario también puede ver el tamaño de la imagen original y procesada, y tiene la opción de guardar la imagen comprimida.",
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.padding(bottom = 8.dp)
         )
