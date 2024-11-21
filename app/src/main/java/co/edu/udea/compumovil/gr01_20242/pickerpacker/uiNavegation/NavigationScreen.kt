@@ -86,12 +86,7 @@ fun NavigationScreen(navController: NavController, loginViewModel: LoginViewMode
 
                     // Botón para la pantalla de Salir
                     IconButton(
-                        onClick = {
-                            navController.navigate(AppScreens.LoginScreen.route) {
-                                // Limpiar el stack de navegación para que no se pueda volver atrás al menú
-                                popUpTo(AppScreens.MenuScreen.route) { inclusive = true }
-                            }
-                        },
+                        onClick = {navigationViewModel.navigateTo(NavigationUiState.Salir)},
                         modifier = Modifier
                             .background(if (currentScreen is NavigationUiState.Salir) Color.Gray else Color.Transparent)
                     ) {
