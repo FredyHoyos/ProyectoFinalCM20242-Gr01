@@ -20,8 +20,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import co.edu.udea.compumovil.gr01_20242.pickerpacker.R
 import co.edu.udea.compumovil.gr01_20242.pickerpacker.ui.login.ui.LoginViewModel
-import co.edu.udea.compumovil.gr01_20242.pickerpacker.viewMenu.Camara
-import co.edu.udea.compumovil.gr01_20242.pickerpacker.viewMenu.DatosUsuario
 import co.edu.udea.compumovil.gr01_20242.pickerpacker.ui.login.navigation.AppScreens
 import co.edu.udea.compumovil.gr01_20242.pickerpacker.viewMenu.Galeria
 import co.edu.udea.compumovil.gr01_20242.pickerpacker.viewMenu.Informacion
@@ -123,12 +121,7 @@ fun NavigationScreen(navController: NavController, loginViewModel: LoginViewMode
                 val applicationContext = LocalContext.current.applicationContext
                 Salir(loginViewModel, navController,applicationContext)
             }
-            is NavigationUiState.TakePhoto -> {
-                DatosUsuario()
-            }
-            is NavigationUiState.OpenGallery -> {
-                Galeria()
-            }
+
         }
     }
 }
