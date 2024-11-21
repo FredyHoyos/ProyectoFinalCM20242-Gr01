@@ -1,27 +1,55 @@
 package co.edu.udea.compumovil.gr01_20242.pickerpacker.ui.login.ui
 
+import android.content.Context
+import android.content.Intent
+import android.provider.ContactsContract.CommonDataKinds.Identity
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
-import kotlinx.coroutines.launch
 import co.edu.udea.compumovil.gr01_20242.pickerpacker.R
 import co.edu.udea.compumovil.gr01_20242.pickerpacker.ui.login.navigation.AppScreens
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.firebase.auth.GoogleAuthProvider
+import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(viewModel: LoginViewModel, navController: NavController) {
@@ -45,9 +73,25 @@ private fun Login(
     val loginEnable: Boolean by viewModel.loginEnable.observeAsState(initial = false)
     val isLoading: Boolean by viewModel.isLoading.observeAsState(initial = false)
     val loginResult: Boolean? by viewModel.loginResult.observeAsState()
+    val token = "965750021284-0khjd91uqt9rft51pkv988uabnst5eeh.apps.googleusercontent.com"
+    val context = LocalContext.current
     val errorMessage: String by viewModel.errorMessage.observeAsState("")
     val coroutineScope = rememberCoroutineScope()
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ){
+        val task = GoogleSignIn.getSignedInAccountFromIntent(it.data)
+        try {
+            val account = task.getResult(java.lang.Exception::class.java)
 
+            val credential = GoogleAuthProvider.getCredential(account.idToken, null)
+                viewModel.startGoogleLogin(credential) {
+                    navController.navigate(AppScreens.MenuScreen.route)
+            }
+        }catch (e: Exception){
+            Log.d("GoogleLoginError", "startGooglelogin failed:")
+        }
+    }
     if (isLoading) {
         Box(Modifier.fillMaxSize()) {
             CircularProgressIndicator(Modifier.align(Alignment.Center))
@@ -55,7 +99,7 @@ private fun Login(
     } else {
         Column(modifier = modifier) {
             HeaderImage(Modifier.align(Alignment.CenterHorizontally))
-            Spacer(modifier = Modifier.padding(32.dp))
+            Spacer(modifier = Modifier.padding(16.dp))
             EmailField(email) { viewModel.onLoginChanged(it, password) }
             Spacer(modifier = Modifier.padding(4.dp))
             PasswordField(password) { viewModel.onLoginChanged(email, it) }
@@ -67,14 +111,59 @@ private fun Login(
                     viewModel.onLoginSelected()
                 }
             }
-            Spacer(modifier = Modifier.padding(16.dp))
+            Spacer(modifier = Modifier.padding(8.dp))
             LoginStatusMessage(loginResult, errorMessage, navController)
-
-            // Texto para registro
+            Spacer(modifier = Modifier.padding(8.dp))
+            Separator(Modifier.align(Alignment.CenterHorizontally))
+            Spacer(modifier = Modifier.padding(8.dp))
+            GoogleloginButton(token, context, launcher)
             Spacer(modifier = Modifier.padding(8.dp))
             RegisterText(Modifier.align(Alignment.CenterHorizontally), navController)
         }
     }
+}
+
+@Composable
+private fun GoogleloginButton(token: String, context: Context, launcher: ActivityResultLauncher<Intent>) {
+    OutlinedButton(
+        onClick = {
+                    val opciones = GoogleSignInOptions.Builder(
+                        GoogleSignInOptions.DEFAULT_SIGN_IN
+                    )
+                        .requestIdToken(token)
+                        .requestEmail()
+                        .build()
+                        val googleSignInClient = GoogleSignIn.getClient(context, opciones)
+                        launcher.launch(googleSignInClient.signInIntent)
+                  },
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(48.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFFF1F1F1),
+            contentColor = Color.Black
+        )
+    ) {
+        Image(
+            painterResource(id = R.drawable.ic_google),
+            contentDescription = "Login con Google",
+            modifier = Modifier.size(36.dp)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = "Iniciar Sesión con Google"
+        )
+    }
+}
+
+@Composable
+private fun Separator(modifier: Modifier) {
+    Text(
+        text = "----------- o -----------",
+        modifier = modifier,
+        fontSize = 14.sp,
+        color = Color(0xFF49a63a)
+    )
 }
 
 @Composable
@@ -92,7 +181,6 @@ private fun RegisterText(modifier: Modifier, navController: NavController) {
     )
 }
 
-
 @Composable
 private fun LoginStatusMessage(
     loginResult: Boolean?,
@@ -102,14 +190,13 @@ private fun LoginStatusMessage(
     when (loginResult) {
         true -> {
             LaunchedEffect(Unit) {
-               navController.navigate(AppScreens.MenuScreen.route)
+                navController.navigate(AppScreens.MenuScreen.route)
             }
         }
         false -> {
-            // Envolvemos el Text en una Box para poder centrarlo horizontalmente
             Box(
                 modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center // Alinea horizontalmente el texto
+                contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = errorMessage.ifEmpty { "Login failed" },
@@ -117,7 +204,7 @@ private fun LoginStatusMessage(
                 )
             }
         }
-        null -> Unit // No mostrar nada si loginResult es null
+        null -> Unit
     }
 }
 
@@ -144,7 +231,9 @@ private fun LoginButton(loginEnable: Boolean, onLoginSelected: () -> Unit) {
 private fun ForgotPassword(modifier: Modifier, navController: NavController) {
     Text(
         text = "Olvidaste la contraseña?",
-        modifier = modifier.clickable {  },
+        modifier = modifier.clickable {
+            navController.navigate(AppScreens.ForgotPasswordScreen.route)
+        },
         fontSize = 12.sp,
         fontWeight = FontWeight.Bold,
         color = Color(0xFF49a63a)
@@ -190,8 +279,6 @@ private fun HeaderImage(modifier: Modifier) {
     Image(
         painter = painterResource(R.drawable.login_udea),
         contentDescription = "Logo_Login",
-        modifier = modifier
+        modifier = modifier.size(300.dp, 300.dp)
     )
 }
-
-

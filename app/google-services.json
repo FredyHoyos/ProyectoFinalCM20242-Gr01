@@ -2,7 +2,7 @@
   "project_info": {
     "project_number": "965750021284",
     "project_id": "imagecompression-2024",
-    "storage_bucket": "imagecompression-2024.appspot.com"
+    "storage_bucket": "imagecompression-2024.firebasestorage.app"
   },
   "client": [
     {
@@ -12,7 +12,20 @@
           "package_name": "co.edu.udea.compumovil.gr01_20242.pickerpacker"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "965750021284-8olh2f9bcjn0d8id3ulgieuio90l4vve.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "co.edu.udea.compumovil.gr01_20242.pickerpacker",
+            "certificate_hash": "592b7718d9ed247c225df486797ee4a0acfe20d4"
+          }
+        },
+        {
+          "client_id": "965750021284-0khjd91uqt9rft51pkv988uabnst5eeh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCu_gKQSTADes01MypEvsjUHNLaSwEumRg"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "965750021284-0khjd91uqt9rft51pkv988uabnst5eeh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

@@ -39,7 +39,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import co.edu.udea.compumovil.gr01_20242.pickerpacker.R
+import co.edu.udea.compumovil.gr01_20242.pickerpacker.ui.login.ui.LoginViewModel
 import co.edu.udea.compumovil.gr01_20242.pickerpacker.viewMenu.Camara
 import co.edu.udea.compumovil.gr01_20242.pickerpacker.viewMenu.DatosUsuario
 import co.edu.udea.compumovil.gr01_20242.pickerpacker.viewMenu.Galeria
@@ -49,9 +51,10 @@ import co.edu.udea.compumovil.gr01_20242.pickerpacker.viewMenuimport.Herramienta
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NavigationScreen(navController: NavController) {
+fun NavigationScreen(navController: NavController, loginViewModel: LoginViewModel) {
     val navigationViewModel: NavigationViewModel = viewModel()
     val currentScreen = navigationViewModel.currentScreen.value
+
 
     Column {
         TopAppBar(
@@ -111,7 +114,8 @@ fun NavigationScreen(navController: NavController) {
                 Galeria()
             }
             is NavigationUiState.Salir -> {
-                Salir()
+                val applicationContext = LocalContext.current.applicationContext
+                Salir(loginViewModel, navController,applicationContext)
             }
             is NavigationUiState.TakePhoto -> {
                 DatosUsuario()

@@ -67,10 +67,11 @@ dependencies {
     implementation (libs.androidx.lifecycle.runtime.ktx.v251)
     implementation (libs.androidx.runtime.livedata)
 
-    // Import the Firebase BoM , analitics y auht
+    // Import the Firebase BoM , analitics y auht + google auth
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.auth.ktx)
+    implementation(libs.play.services.auth)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
