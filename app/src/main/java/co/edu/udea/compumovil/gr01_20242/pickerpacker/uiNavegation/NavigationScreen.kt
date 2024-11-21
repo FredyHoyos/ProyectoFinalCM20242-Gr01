@@ -13,32 +13,25 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-<<<<<<< HEAD
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import co.edu.udea.compumovil.gr01_20242.pickerpacker.R
 import co.edu.udea.compumovil.gr01_20242.pickerpacker.ui.login.ui.LoginViewModel
 import co.edu.udea.compumovil.gr01_20242.pickerpacker.viewMenu.Camara
 import co.edu.udea.compumovil.gr01_20242.pickerpacker.viewMenu.DatosUsuario
-=======
-import androidx.navigation.NavHostController
-import co.edu.udea.compumovil.gr01_20242.pickerpacker.R
 import co.edu.udea.compumovil.gr01_20242.pickerpacker.ui.login.navigation.AppScreens
->>>>>>> origin/main
 import co.edu.udea.compumovil.gr01_20242.pickerpacker.viewMenu.Galeria
 import co.edu.udea.compumovil.gr01_20242.pickerpacker.viewMenu.Informacion
 import co.edu.udea.compumovil.gr01_20242.pickerpacker.viewMenu.Herramientas
+import co.edu.udea.compumovil.gr01_20242.pickerpacker.viewMenu.Salir
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-<<<<<<< HEAD
+
 fun NavigationScreen(navController: NavController, loginViewModel: LoginViewModel) {
-=======
-fun NavigationScreen(navController: NavHostController) {
->>>>>>> origin/main
     val navigationViewModel: NavigationViewModel = viewModel()
     val currentScreen = navigationViewModel.currentScreen.value
 
@@ -125,7 +118,7 @@ fun NavigationScreen(navController: NavHostController) {
             is NavigationUiState.Galeria -> {
                 Galeria()
             }
-<<<<<<< HEAD
+
             is NavigationUiState.Salir -> {
                 val applicationContext = LocalContext.current.applicationContext
                 Salir(loginViewModel, navController,applicationContext)
@@ -136,9 +129,6 @@ fun NavigationScreen(navController: NavHostController) {
             is NavigationUiState.OpenGallery -> {
                 Galeria()
             }
-=======
-            NavigationUiState.Salir -> TODO()
->>>>>>> origin/main
         }
     }
 }

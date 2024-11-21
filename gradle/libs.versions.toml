@@ -55,11 +55,9 @@ androidx-navigation-compose = { group = "androidx.navigation", name = "navigatio
 androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "cameraLifecycle" }
 androidx-camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "cameraView" }
 material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
-<<<<<<< HEAD
 play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
-=======
 androidx-storage = { group = "androidx.test.services", name = "storage", version.ref = "storage" }
->>>>>>> origin/main
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
