@@ -30,7 +30,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
-
+import androidx.compose.material3.*
+import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import kotlin.math.abs
 
 @Composable
 fun Herramientas() {
@@ -38,7 +42,12 @@ fun Herramientas() {
     var bitmap by remember { mutableStateOf<Bitmap?>(null) }
     var bitmap2 by remember { mutableStateOf<Bitmap?>(null) }
     val scope = rememberCoroutineScope()
+    var sliderValue by remember { mutableFloatStateOf(0f) }
+    var threshold  by remember { mutableIntStateOf(0) }
+    var bitmapSize by remember { mutableIntStateOf(0) }
+    var ShowAmpliar by remember { mutableStateOf(false) }
 
+    if (ShowAmpliar) { Ampliar(bitmap2) }
     // Cargar la imagen predeterminada al iniciar
     LaunchedEffect(Unit) {
         bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.imagen_base)
@@ -127,19 +136,37 @@ fun Herramientas() {
             )
         }
 
-        // Botón de procesamiento
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            ElevatedButton(
-                onClick = {
-                    scope.launch {
-                        bitmap2 = compressImageUsingQuadTreeAsync(bitmap!!)
-                    }
+            Text(
+                text = "threshold: ${sliderValue.toInt()}"
+
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Slider(
+                value = sliderValue,
+                onValueChange = {
+                                sliderValue = it
+                                threshold = sliderValue.toInt()
+                    bitmap2 = compressImageUsingQuadTree(bitmap!!, threshold)
+                    bitmapSize = getBitmapSizeInBytes(bitmap2!!)
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-            ) { Text("Procesar Imagen") }
+                valueRange = 0f..100f,
+                steps = 10
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+
+                text = "Tamaño de la imagen procesada en bytes:" +bitmapSize,
+            )
+
+
         }
 
         // Imagen procesada
@@ -157,120 +184,165 @@ fun Herramientas() {
             )
         }
 
-        bitmap2?.let {
-            Text(
-                text = "Tamaño de la imagen procesada: ${getBitmapSizeInBytes(it)} bytes",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
-        }
-
         // Botón para guardar
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
             ElevatedButton(
-                onClick = { /* Lógica para guardar la imagen procesada */ },
+                onClick = {
+                            ShowAmpliar = true
+
+                          },
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
-            ) { Text("Guardar Imagen") }
+            ) { Text("Ampliar Imagen") }
         }
 
         Spacer(modifier = Modifier.height(30.dp))
     }
 }
 
-
 // Función que obtiene el tamaño de la imagen en bytes
-private fun getBitmapSizeInBytes(bitmap: Bitmap): Int {
+private fun getBitmapSizeInBytes(bitmap2: Bitmap): Int {
     val byteStream = ByteArrayOutputStream()
-    bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteStream)
+    bitmap2.compress(Bitmap
+        .CompressFormat.PNG, 100, byteStream)
     return byteStream.toByteArray().size
 }
 
 // Función para comprimir la imagen utilizando QuadTree de forma asíncrona
-suspend fun compressImageUsingQuadTreeAsync(bitmap: Bitmap): Bitmap {
+suspend fun compressImageUsingQuadTreeAsync(bitmap: Bitmap, max: Int): Bitmap {
     return withContext(Dispatchers.Default) {  // Usamos Dispatchers.Default para mover la operación a un hilo de fondo
-        compressImageUsingQuadTree(bitmap)  // Comprimir la imagen
+        compressImageUsingQuadTree(bitmap, max)  // Comprimir la imagen
     }
 }
 
 // Función para comprimir la imagen utilizando QuadTree
-fun compressImageUsingQuadTree(bitmap: Bitmap): Bitmap {
-    val width = bitmap.width
-    val height = bitmap.height
-    val compressedBitmap = Bitmap.createBitmap(width, height, bitmap.config!!)
-    val quadtree = buildQuadTree(bitmap, 0, 0, width.coerceAtMost(height), 1)
-    drawQuadTree(compressedBitmap, quadtree)
-    return compressedBitmap
+fun compressImageUsingQuadTree(bitmap: Bitmap, max: Int): Bitmap {
+
+    val quadtree = Quadtree(bitmap, max = max)
+    return quadtree.getCompressedBitmap()
 }
 
-// Implementación de QuadTree
-data class QuadTreeNode(
-    val x: Int, val y: Int, val size: Int,
-    val color: Int? = null, val isLeaf: Boolean = false,
-    val nw: QuadTreeNode? = null, val ne: QuadTreeNode? = null,
-    val sw: QuadTreeNode? = null, val se: QuadTreeNode? = null
+data class QuadNode(
+    val x: Int,
+    val y: Int,
+    val width: Int,
+    val height: Int,
+    var color: Int? = null,
+    var topLeft: QuadNode? = null,
+    var topRight: QuadNode? = null,
+    var bottomLeft: QuadNode? = null,
+    var bottomRight: QuadNode? = null
 )
 
-// Función que obtiene el color promedio en un área de la imagen
-fun Bitmap.getAverageColor(x: Int, y: Int, size: Int): Int {
-    var r = 0
-    var g = 0
-    var b = 0
-    var count = 0
-    for (i in x until x + size) {
-        for (j in y until y + size) {
-            val color = getPixel(i, j)
-            r += android.graphics.Color.red(color)
-            g += android.graphics.Color.green(color)
-            b += android.graphics.Color.blue(color)
-            count++
-        }
-    }
-    return android.graphics.Color.rgb(r / count, g / count, b / count)
-}
+class Quadtree(private val bitmap: Bitmap, private val max: Int) {
+    private val root: QuadNode = buildTree(0, 0, bitmap.width, bitmap.height)
 
-fun Bitmap.isHomogeneous(x: Int, y: Int, size: Int, tolerance: Int): Boolean {
-    val averageColor = getAverageColor(x, y, size)
-    for (i in x until x + size) {
-        for (j in y until y + size) {
-            val color = getPixel(i, j)
-            if (Math.abs(android.graphics.Color.red(color) - android.graphics.Color.red(averageColor)) > tolerance ||
-                Math.abs(android.graphics.Color.green(color) - android.graphics.Color.green(averageColor)) > tolerance ||
-                Math.abs(android.graphics.Color.blue(color) - android.graphics.Color.blue(averageColor)) > tolerance) {
-                return false
+    private fun buildTree(x: Int, y: Int, width: Int, height: Int): QuadNode {
+        val node = QuadNode(x, y, width, height)
+        if (width <= 1 || height <= 1 || isUniform(x, y, width, height)) {
+            node.color = getAverageColor(x, y, width, height)
+        } else {
+            val halfWidth = width / 2
+            val halfHeight = height / 2
+            node.topLeft = buildTree(x, y, halfWidth, halfHeight)
+            node.topRight = buildTree(x + halfWidth, y, halfWidth, halfHeight)
+            node.bottomLeft = buildTree(x, y + halfHeight, halfWidth, halfHeight)
+            node.bottomRight = buildTree(x + halfWidth, y + halfHeight, halfWidth, halfHeight)
+        }
+        return node
+    }
+
+    private fun isUniform(x: Int, y: Int, width: Int, height: Int): Boolean {
+        val firstColor = bitmap.getPixel(x, y)
+        for (i in x until x + width) {
+            for (j in y until y + height) {
+                if (abs(bitmap.getPixel(i, j) - firstColor) > max) {
+                    return false
+                }
             }
         }
+        return true
     }
-    return true
-}
 
-fun buildQuadTree(bitmap: Bitmap, x: Int, y: Int, size: Int, tolerance: Int): QuadTreeNode {
-    if (size <= 1 || bitmap.isHomogeneous(x, y, size, tolerance)) {
-        return QuadTreeNode(x, y, size, bitmap.getAverageColor(x, y, size), true)
-    }
-    val halfSize = size / 2
-    return QuadTreeNode(
-        x, y, size, null, false,
-        buildQuadTree(bitmap, x, y, halfSize, tolerance),
-        buildQuadTree(bitmap, x + halfSize, y, halfSize, tolerance),
-        buildQuadTree(bitmap, x, y + halfSize, halfSize, tolerance),
-        buildQuadTree(bitmap, x + halfSize, y + halfSize, halfSize, tolerance)
-    )
-}
+    private fun getAverageColor(x: Int, y: Int, width: Int, height: Int): Int {
+        var r = 0
+        var g = 0
+        var b = 0
+        val totalPixels = width * height
 
-fun drawQuadTree(bitmap: Bitmap, node: QuadTreeNode) {
-    if (node.isLeaf && node.color != null) {
-        for (i in node.x until node.x + node.size) {
-            for (j in node.y until node.y + node.size) {
-                bitmap.setPixel(i, j, node.color)
+        for (i in x until x + width) {
+            for (j in y until y + height) {
+                val color = bitmap.getPixel(i, j)
+                r += (color shr 16) and 0xFF
+                g += (color shr 8) and 0xFF
+                b += color and 0xFF
             }
         }
-    } else {
-        node.nw?.let { drawQuadTree(bitmap, it) }
-        node.ne?.let { drawQuadTree(bitmap, it) }
-        node.sw?.let { drawQuadTree(bitmap, it) }
-        node.se?.let { drawQuadTree(bitmap, it) }
+
+        r /= totalPixels
+        g /= totalPixels
+        b /= totalPixels
+
+        return (0xFF shl 24) or (r shl 16) or (g shl 8) or b
+    }
+
+    fun getCompressedBitmap(): Bitmap {
+        val compressedBitmap = Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888)
+        paintNode(root, compressedBitmap)
+        return compressedBitmap
+    }
+
+    private fun paintNode(node: QuadNode, bitmap: Bitmap) {
+        if (node.color != null) {
+            for (i in node.x until node.x + node.width) {
+                for (j in node.y until node.y + node.height) {
+                    bitmap.setPixel(i, j, node.color!!)
+                }
+            }
+        } else {
+            node.topLeft?.let { paintNode(it, bitmap) }
+            node.topRight?.let { paintNode(it, bitmap) }
+            node.bottomLeft?.let { paintNode(it, bitmap) }
+            node.bottomRight?.let { paintNode(it, bitmap) }
+        }
     }
 }
+
+// funcion que me permite ampliar la imagen
+@Composable
+fun Ampliar(bitmap2: Bitmap?) {
+    var scale by remember { mutableFloatStateOf(1f) }
+    var offsetX by remember { mutableFloatStateOf(0f) }
+    var offsetY by remember { mutableFloatStateOf(0f) }
+
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .padding(16.dp)
+        .pointerInput(Unit) {
+            detectTransformGestures { _, pan, zoom, _ ->
+                scale *= zoom
+                offsetX += pan.x
+                offsetY += pan.y
+            }
+        }) {
+        Image(
+            painter = rememberAsyncImagePainter(bitmap2),
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer(
+                    scaleX = scale,
+                    scaleY = scale,
+                    translationX = offsetX,
+                    translationY = offsetY
+                )
+        )
+    }
+}
+
+
+
+
+
