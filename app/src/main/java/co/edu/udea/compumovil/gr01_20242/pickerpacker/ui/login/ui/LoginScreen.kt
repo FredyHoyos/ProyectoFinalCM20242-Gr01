@@ -2,7 +2,6 @@ package co.edu.udea.compumovil.gr01_20242.pickerpacker.ui.login.ui
 
 import android.content.Context
 import android.content.Intent
-import android.provider.ContactsContract.CommonDataKinds.Identity
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
@@ -50,6 +49,15 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.launch
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+
+
 
 @Composable
 fun LoginScreen(viewModel: LoginViewModel, navController: NavController) {
@@ -83,9 +91,9 @@ private fun Login(
         val task = GoogleSignIn.getSignedInAccountFromIntent(it.data)
         try {
             val account = task.getResult(java.lang.Exception::class.java)
-
             val credential = GoogleAuthProvider.getCredential(account.idToken, null)
-                viewModel.startGoogleLogin(credential) {
+
+            viewModel.startGoogleLogin(credential) {
                     navController.navigate(AppScreens.MenuScreen.route)
             }
         }catch (e: Exception){
@@ -243,6 +251,9 @@ private fun ForgotPassword(modifier: Modifier, navController: NavController) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PasswordField(password: String, onTextFieldChanged: (String) -> Unit) {
+    // Estado para controlar la visibilidad de la contraseña
+    var passwordVisible by remember { mutableStateOf(false) }
+
     TextField(
         value = password,
         onValueChange = { onTextFieldChanged(it) },
@@ -253,7 +264,17 @@ private fun PasswordField(password: String, onTextFieldChanged: (String) -> Unit
         placeholder = { Text(text = "Contraseña", color = Color(0xFF636262)) },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
         singleLine = true,
-        maxLines = 1
+        maxLines = 1,
+        // Cambia la visualización según si la contraseña es visible o no
+        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+        trailingIcon = {
+            // Ícono de "ojo" para mostrar/ocultar contraseña
+            val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+
+            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                Icon(imageVector = image, contentDescription = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña")
+            }
+        }
     )
 }
 
