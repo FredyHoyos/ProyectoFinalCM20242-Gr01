@@ -40,6 +40,7 @@ fun ForgotPasswordScreen(viewModel: ForgotPasswordViewModel, navController: NavC
         Modifier
             .fillMaxSize()
             .padding(16.dp)
+            .background(Color(0xFFF0F4F8))
     ) {
         ForgotPassword(Modifier.align(Alignment.Center), viewModel, navController)
     }
@@ -60,7 +61,7 @@ fun ForgotPassword(
     val coroutineScope = rememberCoroutineScope()
 
     if (isLoading) {
-        Box(Modifier.fillMaxSize()) {
+        Box(Modifier.fillMaxSize().background(Color(0xFFF0F4F8))) {
             CircularProgressIndicator(Modifier.align(Alignment.Center))
         }
     } else {

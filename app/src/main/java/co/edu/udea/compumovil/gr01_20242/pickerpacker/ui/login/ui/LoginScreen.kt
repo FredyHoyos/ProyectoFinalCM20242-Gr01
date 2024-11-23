@@ -65,6 +65,7 @@ fun LoginScreen(viewModel: LoginViewModel, navController: NavController) {
         Modifier
             .fillMaxSize()
             .padding(16.dp)
+            .background(Color(0xFFF0F4F8))
     ) {
         Login(Modifier.align(Alignment.Center), viewModel, navController)
     }
@@ -101,7 +102,7 @@ private fun Login(
         }
     }
     if (isLoading) {
-        Box(Modifier.fillMaxSize()) {
+        Box(Modifier.fillMaxSize().background(Color(0xFFF0F4F8))) {
             CircularProgressIndicator(Modifier.align(Alignment.Center))
         }
     } else {

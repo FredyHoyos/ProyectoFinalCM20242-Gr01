@@ -26,6 +26,7 @@ fun RegisterScreen(viewModel: RegisterViewModel, navController: NavController) {
         Modifier
             .fillMaxSize()
             .padding(16.dp)
+            .background(Color(0xFFF0F4F8))
     ) {
         Register(Modifier.align(Alignment.Center), viewModel, navController)
     }
@@ -46,7 +47,7 @@ private fun Register(
     val coroutineScope = rememberCoroutineScope()
 
     if (isLoading) {
-        Box(Modifier.fillMaxSize()) {
+        Box(Modifier.fillMaxSize().background(Color(0xFFF0F4F8))) {
             CircularProgressIndicator(Modifier.align(Alignment.Center))
         }
     } else {

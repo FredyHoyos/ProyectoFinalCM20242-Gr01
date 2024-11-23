@@ -1,6 +1,6 @@
 package co.edu.udea.compumovil.gr01_20242.pickerpacker.viewMenu
 
-
+import android.Manifest
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.ui.graphics.toArgb
@@ -52,6 +53,25 @@ fun Herramientas() {
     var threshold by remember { mutableIntStateOf(0) }
     var bitmapSize by remember { mutableIntStateOf(0) }
     var showAmpliar by remember { mutableStateOf(false) }  // Estado para mostrar o esconder la imagen ampliada
+    var showSnackbar by remember { mutableStateOf(false) }
+
+    // Comprobamos si se aceptan los permisos
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions(),
+        onResult = { permissions ->
+            if (permissions[Manifest.permission.CAMERA] == true && permissions[Manifest.permission.WRITE_EXTERNAL_STORAGE] == true) {
+                // Permisos aceptados
+                Toast.makeText(context, "Permisos otorgados", Toast.LENGTH_SHORT).show()
+            } else {
+                // Permisos denegados
+                //Toast.makeText(context, "Permisos denegados", Toast.LENGTH_SHORT).show()
+            }
+        }
+    )
+
+    LaunchedEffect(Unit) {
+        permissionLauncher.launch(arrayOf(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE))
+    }
 
     if (showAmpliar) {
         Ampliar(bitmap2) { showAmpliar = false }  // Pasar el callback para cerrar la imagen ampliada
@@ -94,7 +114,8 @@ fun Herramientas() {
         modifier = Modifier
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
-            .fillMaxSize(),
+            .fillMaxSize()
+            .background(Color(0xFFF0F4F8)),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -137,28 +158,16 @@ fun Herramientas() {
             )
         }
 
-
-        // Dentro del Composable, define un estado para almacenar el tamaño del bitmap
-        var bitmapSizeInBytes by remember { mutableIntStateOf(0) }
-
-// Comprueba si `bitmap` no es 0
+        // Mostrar el slider y tamaño de la imagen
         bitmap?.let {
-            // Lanza la corrutina para calcular el tamaño del bitmap
-            scope.launch {
-                val sizeInBytes = getBitmapSizeInBytes(it)
-                // Actualiza el estado con el tamaño del bitmap
-                bitmapSizeInBytes = sizeInBytes
-            }
-
-            // Muestra el tamaño en el Text solo si ya se calculó
             Text(
-                text = "Tamaño de la imagen inicial: $bitmapSizeInBytes bytes",
+                text = "Tamaño de la imagen inicial: ${getBitmapSizeInBytes(it)} bytes",
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
         }
 
-
+        // Slider para la compresión
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -214,29 +223,44 @@ fun Herramientas() {
 
             ElevatedButton(
                 onClick = {
-                    bitmap2?.let { saveCompressedImage(context, it) }
+                    bitmap2?.let {
+                        saveCompressedImage(context, it)
+                        showSnackbar = true
+                    }
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xff57d159))
             ) { Text("Guardar Imagen") }
         }
 
-        Spacer(modifier = Modifier.height(30.dp))
+        // Mostrar Snackbar de imagen guardada
+        if (showSnackbar) {
+            Snackbar(
+                action = {
+                    Button(onClick = { showSnackbar = false },
+                           colors = ButtonDefaults.buttonColors(containerColor = Color(0xff57d159)),
+                    ) {
+                        Text("Cerrar")
+                    }
+                },
+                modifier = Modifier.padding(16.dp),
+                containerColor = Color(0xFF8de88a)
+            ) {
+                Text("Imagen Guardada")
+            }
+        }
     }
 }
 
+// Función para guardar la imagen comprimida
 fun saveCompressedImage(context: Context, bitmap: Bitmap) {
-    // Generar un nombre de archivo único basado en el tiempo
     val fileName = "compressed_image_${System.currentTimeMillis()}.png"
-
-    // Crear el archivo en la memoria interna
     val file = File(context.filesDir, fileName)
-
     FileOutputStream(file).use { outputStream ->
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
     }
 }
 
-// Función que obtiene el tamaño de la imagen en bytes
+// Función para obtener el tamaño en bytes
 fun getBitmapSizeInBytes(bitmap2: Bitmap): Int {
     val byteStream = ByteArrayOutputStream()
     bitmap2.compress(Bitmap.CompressFormat.PNG, 100, byteStream)
