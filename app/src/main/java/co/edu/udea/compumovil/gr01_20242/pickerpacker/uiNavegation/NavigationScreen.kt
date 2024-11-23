@@ -40,7 +40,7 @@ fun NavigationScreen(navController: NavController, loginViewModel: LoginViewMode
             actions = {
                 Row(
                     modifier = Modifier
-                        .background(Color.Blue)
+                        .background(color = Color(0xFF8de88a))
                         .fillMaxWidth()
                         .weight(1f), // Para ocupar todo el espacio disponible
                     horizontalArrangement = Arrangement.SpaceAround // Espacio entre los íconos
@@ -49,7 +49,7 @@ fun NavigationScreen(navController: NavController, loginViewModel: LoginViewMode
                     IconButton(
                         onClick = { navigationViewModel.navigateTo(NavigationUiState.Informacion) },
                         modifier = Modifier
-                            .background(if (currentScreen is NavigationUiState.Informacion) Color.Gray else Color.Transparent)
+                            .background(if (currentScreen is NavigationUiState.Informacion) Color(0xFFc3ffba) else Color.Transparent)
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.ico_informacion),
@@ -62,7 +62,7 @@ fun NavigationScreen(navController: NavController, loginViewModel: LoginViewMode
                     IconButton(
                         onClick = { navigationViewModel.navigateTo(NavigationUiState.Herramientas) },
                         modifier = Modifier
-                            .background(if (currentScreen is NavigationUiState.Herramientas) Color.Gray else Color.Transparent)
+                            .background(if (currentScreen is NavigationUiState.Herramientas) Color(0xFFc3ffba) else Color.Transparent)
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.ico_camara),
@@ -75,7 +75,7 @@ fun NavigationScreen(navController: NavController, loginViewModel: LoginViewMode
                     IconButton(
                         onClick = { navigationViewModel.navigateTo(NavigationUiState.Galeria) },
                         modifier = Modifier
-                            .background(if (currentScreen is NavigationUiState.Galeria) Color.Gray else Color.Transparent)
+                            .background(if (currentScreen is NavigationUiState.Galeria) Color(0xFFc3ffba) else Color.Transparent)
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.ico_galeria),
@@ -88,7 +88,7 @@ fun NavigationScreen(navController: NavController, loginViewModel: LoginViewMode
                     IconButton(
                         onClick = {navigationViewModel.navigateTo(NavigationUiState.Salir)},
                         modifier = Modifier
-                            .background(if (currentScreen is NavigationUiState.Salir) Color.Gray else Color.Transparent)
+                            .background(if (currentScreen is NavigationUiState.Salir) Color(0xFFc3ffba) else Color.Transparent)
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.ico_salir),

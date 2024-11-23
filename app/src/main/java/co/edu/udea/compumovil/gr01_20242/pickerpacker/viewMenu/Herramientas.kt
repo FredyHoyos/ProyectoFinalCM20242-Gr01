@@ -27,14 +27,19 @@ import androidx.compose.ui.unit.dp
 import co.edu.udea.compumovil.gr01_20242.pickerpacker.R
 import coil.compose.rememberAsyncImagePainter
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import androidx.compose.material3.*
 import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import kotlin.math.abs
+import android.content.Context
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import java.io.File
+import java.io.FileOutputStream
 
 @Composable
 fun Herramientas() {
@@ -43,11 +48,14 @@ fun Herramientas() {
     var bitmap2 by remember { mutableStateOf<Bitmap?>(null) }
     val scope = rememberCoroutineScope()
     var sliderValue by remember { mutableFloatStateOf(0f) }
-    var threshold  by remember { mutableIntStateOf(0) }
+    var threshold by remember { mutableIntStateOf(0) }
     var bitmapSize by remember { mutableIntStateOf(0) }
-    var ShowAmpliar by remember { mutableStateOf(false) }
+    var showAmpliar by remember { mutableStateOf(false) }  // Estado para mostrar o esconder la imagen ampliada
 
-    if (ShowAmpliar) { Ampliar(bitmap2) }
+    if (showAmpliar) {
+        Ampliar(bitmap2) { showAmpliar = false }  // Pasar el callback para cerrar la imagen ampliada
+    }
+
     // Cargar la imagen predeterminada al iniciar
     LaunchedEffect(Unit) {
         bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.imagen_base)
@@ -96,12 +104,12 @@ fun Herramientas() {
         ) {
             Button(
                 onClick = { cameraLauncher.launch(intent) },
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xff57d159))
             ) { Text("Tomar Foto") }
 
             Button(
                 onClick = { galleryLauncher.launch("image/*") },
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xff57d159))
             ) { Text("Subir Foto") }
 
             Button(
@@ -109,7 +117,7 @@ fun Herramientas() {
                     bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.imagen_base)
                     bitmap2 = bitmap
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xff57d159))
             ) { Text("Limpiar") }
         }
 
@@ -121,7 +129,7 @@ fun Herramientas() {
                 contentDescription = "Imagen tomada o predeterminada",
                 modifier = Modifier
                     .fillMaxWidth()
-                    .aspectRatio(aspectRatio)  // Mantener la relación de aspecto
+                    .aspectRatio(aspectRatio)
                     .clip(RoundedCornerShape(16.dp))
                     .border(2.dp, MaterialTheme.colorScheme.onBackground, RoundedCornerShape(16.dp))
                     .padding(8.dp)
@@ -136,7 +144,6 @@ fun Herramientas() {
             )
         }
 
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -144,29 +151,22 @@ fun Herramientas() {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = "threshold: ${sliderValue.toInt()}"
-
-            )
+            Text(text = "threshold: ${sliderValue.toInt()}")
             Spacer(modifier = Modifier.height(16.dp))
             Slider(
                 value = sliderValue,
                 onValueChange = {
-                                sliderValue = it
-                                threshold = sliderValue.toInt()
+                    sliderValue = it
+                    threshold = sliderValue.toInt()
                     bitmap2 = compressImageUsingQuadTree(bitmap!!, threshold)
                     bitmapSize = getBitmapSizeInBytes(bitmap2!!)
                 },
+                colors = SliderDefaults.colors(thumbColor = Color(0xff57d159), activeTrackColor = Color(0xff57d159)),
                 valueRange = 0f..100f,
                 steps = 10
             )
             Spacer(modifier = Modifier.height(16.dp))
-            Text(
-
-                text = "Tamaño de la imagen procesada en bytes:" +bitmapSize,
-            )
-
-
+            Text(text = "Tamaño de la imagen procesada en bytes: $bitmapSize")
         }
 
         // Imagen procesada
@@ -177,28 +177,45 @@ fun Herramientas() {
                 contentDescription = "Imagen procesada",
                 modifier = Modifier
                     .fillMaxWidth()
-                    .aspectRatio(aspectRatio)  // Mantener la relación de aspecto
+                    .aspectRatio(aspectRatio)
                     .clip(RoundedCornerShape(16.dp))
                     .border(2.dp, MaterialTheme.colorScheme.onBackground, RoundedCornerShape(16.dp))
                     .padding(8.dp)
             )
         }
 
-        // Botón para guardar
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
             ElevatedButton(
-                onClick = {
-                            ShowAmpliar = true
-
-                          },
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                onClick = { showAmpliar = true },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xff57d159))
             ) { Text("Ampliar Imagen") }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            ElevatedButton(
+                onClick = {
+                    bitmap2?.let { saveCompressedImage(context, it) }
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xff57d159))
+            ) { Text("Guardar Imagen") }
         }
 
         Spacer(modifier = Modifier.height(30.dp))
+    }
+}
+
+fun saveCompressedImage(context: Context, bitmap: Bitmap) {
+    // Generar un nombre de archivo único basado en el tiempo
+    val fileName = "compressed_image_${System.currentTimeMillis()}.png"
+
+    // Crear el archivo en la memoria interna
+    val file = File(context.filesDir, fileName)
+
+    FileOutputStream(file).use { outputStream ->
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
     }
 }
 
@@ -312,33 +329,41 @@ class Quadtree(private val bitmap: Bitmap, private val max: Int) {
 
 // funcion que me permite ampliar la imagen
 @Composable
-fun Ampliar(bitmap2: Bitmap?) {
+fun Ampliar(bitmap: Bitmap?, onDismiss: () -> Unit) {
+    // Estado para controlar la escala y la posición
     var scale by remember { mutableFloatStateOf(1f) }
     var offsetX by remember { mutableFloatStateOf(0f) }
     var offsetY by remember { mutableFloatStateOf(0f) }
 
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .padding(16.dp)
-        .pointerInput(Unit) {
-            detectTransformGestures { _, pan, zoom, _ ->
-                scale *= zoom
-                offsetX += pan.x
-                offsetY += pan.y
+    // Caja que permite la interacción con la imagen ampliada
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.7f))  // Fondo oscuro para resaltar la imagen
+            .clickable { onDismiss() }  // Al hacer clic fuera de la imagen, se cierra
+            .padding(16.dp)
+            .pointerInput(Unit) {
+                detectTransformGestures { _, pan, zoom, _ ->
+                    scale *= zoom
+                    offsetX += pan.x
+                    offsetY += pan.y
+                }
             }
-        }) {
-        Image(
-            painter = rememberAsyncImagePainter(bitmap2),
-            contentDescription = null,
-            modifier = Modifier
-                .fillMaxSize()
-                .graphicsLayer(
-                    scaleX = scale,
-                    scaleY = scale,
-                    translationX = offsetX,
-                    translationY = offsetY
-                )
-        )
+    ) {
+        bitmap?.let {
+            Image(
+                painter = rememberAsyncImagePainter(it),
+                contentDescription = null,
+                modifier = Modifier
+                    .graphicsLayer(
+                        scaleX = scale,
+                        scaleY = scale,
+                        translationX = offsetX,
+                        translationY = offsetY
+                    )
+            )
+        }
     }
 }
 
